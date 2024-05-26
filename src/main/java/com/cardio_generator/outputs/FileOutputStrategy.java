@@ -13,8 +13,8 @@ public class fileOutputStrategy implements OutputStrategy {
 
     public final ConcurrentHashMap<String, String> file_map = new ConcurrentHashMap<>();
 
+    // no random empty lines
     public fileOutputStrategy(String baseDirectory) {
-
         this.BaseDirectory = baseDirectory;
     }
 
