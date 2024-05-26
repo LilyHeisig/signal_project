@@ -1,8 +1,8 @@
 package com.cardio_generator.generators;
 
-import java.util.Random;
-
+// no blank lines between import statements, statements in ASCII sort order
 import com.cardio_generator.outputs.OutputStrategy;
+import java.util.Random;
 
 public class AlertGenerator implements PatientDataGenerator {
 
