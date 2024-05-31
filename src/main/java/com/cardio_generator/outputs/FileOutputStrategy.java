@@ -13,11 +13,22 @@ public class fileOutputStrategy implements OutputStrategy {
 
     public final ConcurrentHashMap<String, String> file_map = new ConcurrentHashMap<>();
 
+    /*
+     * Constructor for the fileOutputStrategy class.
+     */
     // no random empty lines
     public fileOutputStrategy(String baseDirectory) {
         this.BaseDirectory = baseDirectory;
     }
 
+    /**
+     * Outputs the patient data to a file.
+     * 
+     * @param patientId The ID of the patient
+     * @param timestamp The timestamp of the data
+     * @param label     The label of the data
+     * @param data      The data to be output
+     */
     @Override
     public void output(int patientId, long timestamp, String label, String data) {
         try {
