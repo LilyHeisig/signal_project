@@ -36,13 +36,19 @@ public class DataStorage {
      * @param timestamp        the time at which the measurement was taken, in
      *                         milliseconds since the Unix epoch
      */
-    public void addPatientData(int patientId, double measurementValue, String recordType, long timestamp) {
+    public void addPatientData(int patientId, double measurementValue, String recordType, long timestamp) throws IllegalArgumentException {
         Patient patient = patientMap.get(patientId);
         if (patient == null) {
             patient = new Patient(patientId);
             patientMap.put(patientId, patient);
         }
-        patient.addRecord(measurementValue, recordType, timestamp);
+        // Make sure the record is not already stored
+        if (patient.getRecords(timestamp, timestamp).get(0).getMeasurementValue() == measurementValue
+                && patient.getRecords(timestamp, timestamp).get(0).getRecordType() == recordType) {
+            throw new IllegalArgumentException("Record already exists.");
+        }else {
+            patient.addRecord(measurementValue, recordType, timestamp);
+        }
     }
 
     /**

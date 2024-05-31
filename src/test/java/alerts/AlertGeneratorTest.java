@@ -6,12 +6,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import javax.xml.crypto.Data;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import com.alerts.Alert;
 import com.alerts.AlertGenerator;
 import com.data_management.Patient;
 import com.data_management.PatientRecord;

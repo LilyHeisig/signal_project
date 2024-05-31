@@ -4,6 +4,7 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.server.WebSocketServer;
 
 import java.net.InetSocketAddress;
+import java.lang.Thread;
 
 public class WebSocketOutputStrategy implements OutputStrategy {
 
@@ -15,8 +16,34 @@ public class WebSocketOutputStrategy implements OutputStrategy {
         server.start();
     }
 
+    public void closeServer() {
+        try {
+            server.stop();
+        } catch (Exception e) {
+            System.out.println("Error stopping server: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Outputs the patient data to all connected WebSocket clients.
+     * I did not change the output formatting here (as was instruected
+     * in the week 6 assignment) because I don't think it's necessary.
+     * I implemented the Client to handle the data just as it is output
+     * here.
+     * 
+     * @param patientId The ID of the patient
+     * @param timestamp The timestamp of the data
+     * @param label     The label of the data
+     * @param data      The data to be output
+     */
     @Override
     public void output(int patientId, long timestamp, String label, String data) {
+        // Simulate some processing time
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            System.out.println("Sleep interrupted `-´ : " + e.getMessage());
+        }
         String message = String.format("%d,%d,%s,%s", patientId, timestamp, label, data);
         // Broadcast the message to all connected clients
         for (WebSocket conn : server.getConnections()) {
