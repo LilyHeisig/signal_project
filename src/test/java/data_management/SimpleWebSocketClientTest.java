@@ -12,6 +12,8 @@ import com.data_management.SimpleWebSocketClient;
 import com.cardio_generator.outputs.WebSocketOutputStrategy;
 import com.data_management.DataStorage;
 import com.data_management.PatientRecord;
+import com.data_management.DataManager;
+import com.alerts.AlertPublisher;
 
 public class SimpleWebSocketClientTest {
 
@@ -138,10 +140,12 @@ public class SimpleWebSocketClientTest {
 
             PatientRecord record = new PatientRecord(1, 80, "Cholesterol", 1632873600L);
 
-            assertEquals(record.getMeasurementValue(), client.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
-            assertEquals(record.getTimestamp(), client.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getTimestamp(), "The record is not stored in the dataStorage");
-            assertEquals(record.getPatientId(), client.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getPatientId(), "The record is not stored in the dataStorage");
-            assertEquals(record.getRecordType(), client.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getRecordType(), "The record is not stored in the dataStorage");
+            DataManager dataManager = DataManager.getInstance();
+
+            assertEquals(record.getMeasurementValue(), dataManager.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+            assertEquals(record.getTimestamp(), dataManager.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getTimestamp(), "The record is not stored in the dataStorage");
+            assertEquals(record.getPatientId(), dataManager.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getPatientId(), "The record is not stored in the dataStorage");
+            assertEquals(record.getRecordType(), dataManager.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getRecordType(), "The record is not stored in the dataStorage");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -168,6 +172,8 @@ public class SimpleWebSocketClientTest {
             // send the message
             server.output(1, 1632873600, "Cholesterol", "80");
 
+            Thread.sleep(1000);
+
             client.close();
             System.out.println("Client closed successfully");
 
@@ -175,11 +181,16 @@ public class SimpleWebSocketClientTest {
             System.out.println("Server closed successfully");
 
             PatientRecord record = new PatientRecord(1, 80, "Cholesterol", 1632873600L);
+            DataManager dataManager = DataManager.getInstance();
+            System.out.println("fetched the data manager");
 
-            assertEquals(record.getMeasurementValue(), client.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
-            assertEquals(record.getTimestamp(), client.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getTimestamp(), "The record is not stored in the dataStorage");
-            assertEquals(record.getPatientId(), client.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getPatientId(), "The record is not stored in the dataStorage");
-            assertEquals(record.getRecordType(), client.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getRecordType(), "The record is not stored in the dataStorage");
+            assertNotNull(dataManager.getDataStorage());
+            System.out.println("data storage is not null");
+
+            assertEquals(record.getMeasurementValue(), dataManager.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+            assertEquals(record.getTimestamp(), dataManager.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getTimestamp(), "The record is not stored in the dataStorage");
+            assertEquals(record.getPatientId(), dataManager.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getPatientId(), "The record is not stored in the dataStorage");
+            assertEquals(record.getRecordType(), dataManager.getDataStorage().getRecords(record.getPatientId(), record.getTimestamp(), (record.getTimestamp()+1)).get(0).getRecordType(), "The record is not stored in the dataStorage");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -228,16 +239,56 @@ public class SimpleWebSocketClientTest {
             server.closeServer();
             System.out.println("Server closed successfully");
 
-            assertEquals(record1.getMeasurementValue(), client.getDataStorage().getRecords(record1.getPatientId(), record1.getTimestamp(), (record1.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
-            assertEquals(record2.getMeasurementValue(), client.getDataStorage().getRecords(record2.getPatientId(), record2.getTimestamp(), (record2.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
-            assertEquals(record3.getMeasurementValue(), client.getDataStorage().getRecords(record3.getPatientId(), record3.getTimestamp(), (record3.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
-            assertEquals(record4.getMeasurementValue(), client.getDataStorage().getRecords(record4.getPatientId(), record4.getTimestamp(), (record4.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
-            assertEquals(record5.getMeasurementValue(), client.getDataStorage().getRecords(record5.getPatientId(), record5.getTimestamp(), (record5.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
-            assertEquals(record6.getMeasurementValue(), client.getDataStorage().getRecords(record6.getPatientId(), record6.getTimestamp(), (record6.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
-            assertEquals(record7.getMeasurementValue(), client.getDataStorage().getRecords(record7.getPatientId(), record7.getTimestamp(), (record7.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
-            assertEquals(record8.getMeasurementValue(), client.getDataStorage().getRecords(record8.getPatientId(), record8.getTimestamp(), (record8.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
-            assertEquals(record9.getMeasurementValue(), client.getDataStorage().getRecords(record9.getPatientId(), record9.getTimestamp(), (record9.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
-            assertEquals(record10.getMeasurementValue(), client.getDataStorage().getRecords(record10.getPatientId(), record10.getTimestamp(), (record10.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+            DataManager dataManager = DataManager.getInstance();
+
+            assertEquals(record1.getMeasurementValue(), dataManager.getDataStorage().getRecords(record1.getPatientId(), record1.getTimestamp(), (record1.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+            assertEquals(record2.getMeasurementValue(), dataManager.getDataStorage().getRecords(record2.getPatientId(), record2.getTimestamp(), (record2.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+            assertEquals(record3.getMeasurementValue(), dataManager.getDataStorage().getRecords(record3.getPatientId(), record3.getTimestamp(), (record3.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+            assertEquals(record4.getMeasurementValue(), dataManager.getDataStorage().getRecords(record4.getPatientId(), record4.getTimestamp(), (record4.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+            assertEquals(record5.getMeasurementValue(), dataManager.getDataStorage().getRecords(record5.getPatientId(), record5.getTimestamp(), (record5.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+            assertEquals(record6.getMeasurementValue(), dataManager.getDataStorage().getRecords(record6.getPatientId(), record6.getTimestamp(), (record6.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+            assertEquals(record7.getMeasurementValue(), dataManager.getDataStorage().getRecords(record7.getPatientId(), record7.getTimestamp(), (record7.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+            assertEquals(record8.getMeasurementValue(), dataManager.getDataStorage().getRecords(record8.getPatientId(), record8.getTimestamp(), (record8.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+            assertEquals(record9.getMeasurementValue(), dataManager.getDataStorage().getRecords(record9.getPatientId(), record9.getTimestamp(), (record9.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+            assertEquals(record10.getMeasurementValue(), dataManager.getDataStorage().getRecords(record10.getPatientId(), record10.getTimestamp(), (record10.getTimestamp()+1)).get(0).getMeasurementValue(), "The record is not stored in the dataStorage");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Test to see if an alert is triggered.
+     */
+    @Test
+    void simpleWebSocketClientAlertTest() {
+        try {
+            WebSocketOutputStrategy server = new WebSocketOutputStrategy(3503);
+
+            URI uri = new URI("ws://localhost:3503");
+            SimpleWebSocketClient client = new SimpleWebSocketClient(uri);
+
+            client.readData(new DataStorage());
+            System.out.println("Client is open: " + client.isOpen());
+
+            long time = System.currentTimeMillis();
+
+            // send the message
+            server.output(1, time-5000, "ECGData", "80");
+            server.output(1, time-4000, "ECGData", "80");
+            server.output(1, time-3000, "ECGData", "80");
+            server.output(1, time-2000, "ECGData", "80");
+            server.output(1, time-1000, "ECGData", "80");
+            server.output(1, time, "ECGData", "885");
+
+
+            client.close();
+            System.out.println("Client closed successfully");
+
+            server.closeServer();
+            System.out.println("Server closed successfully");
+
+            // check if an alert has been generated on the debug console
+
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }

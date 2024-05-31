@@ -3,10 +3,15 @@ package com.alerts;
 import com.data_management.DataStorage;
 import com.data_management.Patient;
 import com.data_management.PatientRecord;
+import com.staff_devices.SimpleStaffGUI;
+import com.staff_devices.StaffDevice;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.swing.text.SimpleAttributeSet;
 
 /**
  * The {@code AlertGenerator} class is responsible for monitoring patient data
@@ -16,6 +21,7 @@ import java.util.List;
  */
 public class AlertGenerator {
     private DataStorage dataStorage;
+    private AlertPublisher alertPublisher;
 
     /**
      * Constructs an {@code AlertGenerator} with a specified {@code DataStorage}.
@@ -27,6 +33,9 @@ public class AlertGenerator {
      */
     public AlertGenerator(DataStorage dataStorage) {
         this.dataStorage = dataStorage;
+        this.alertPublisher = AlertPublisher.getInstance();
+        StaffDevice device = new SimpleStaffGUI();
+        alertPublisher.subscribe(device);
     }
 
     /**
@@ -40,6 +49,7 @@ public class AlertGenerator {
      * @param patient the patient data to evaluate for alert conditions
      */
     public void evaluateData(Patient patient) throws Exception {
+        System.out.println("AlertGenerator got data. Evaluating...");
         // find the relevant start and end time of the data
         long currentTime = System.currentTimeMillis();
         long startTime = currentTime - 86400000; // 24 hours ago - do we need that much data?
@@ -48,18 +58,22 @@ public class AlertGenerator {
         //List<PatientRecord> patientRecords = patient.getRecords(startTime, currentTime);
 
         int patientId = patient.getPatientId();
+
+        System.out.println("fetching patient records");
         List<PatientRecord> patientRecords = dataStorage.getRecords(patientId, startTime, currentTime);
+
+
 
         if (patientRecords.isEmpty() == true) {
             return;
         }
-
         // filter the patient records for the specific record types
         List<PatientRecord> systolicPressure = new ArrayList<PatientRecord>();
         List<PatientRecord> diastolicPressure = new ArrayList<PatientRecord>();
         List<PatientRecord> saturation = new ArrayList<PatientRecord>();
         List<PatientRecord> ecgData = new ArrayList<PatientRecord>();
 
+        System.out.println("sorting patient records");
         for (int i = 0; i < patientRecords.size(); i++) {
             PatientRecord patientRecord = patientRecords.get(i);
             if (patientRecord.getRecordType().equals("SystolicBloodPressure")) {
@@ -77,6 +91,7 @@ public class AlertGenerator {
         }
 
         // Check for critical conditions
+        System.out.println("checking for critical conditions");
         if (isBloodPressureCritical(systolicPressure, diastolicPressure)) {
             triggerAlert(new Alert(patientId, "BloodPressure", currentTime));
         }
@@ -192,7 +207,9 @@ public class AlertGenerator {
      */
 
     private boolean isECGDataCritical(List<PatientRecord> ecgData) {
-        if (ecgData.isEmpty() == true) {
+        // need at least 3 data points to compute the average and standard deviation
+        // between the first two points and compare it to the third
+        if (ecgData.size() < 3) { 
             return false;
         }
         // compute the average of the ecgData measurement values leaving out the last element
@@ -225,6 +242,7 @@ public class AlertGenerator {
         // log the alert
 
         // notify staff
-
+        alertPublisher.notify();
+        System.out.println("notified staff device");
     }
 }

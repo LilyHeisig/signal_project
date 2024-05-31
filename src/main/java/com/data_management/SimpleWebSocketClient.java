@@ -7,17 +7,15 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 public class SimpleWebSocketClient extends WebSocketClient implements DataReader {
-
-    private DataStorage dataStorage;
+    private DataManager dataManager;
 
     public SimpleWebSocketClient(URI serverURI) {
 		super(serverURI);
+        dataManager = DataManager.getInstance();
 	}
 
     @Override
     public void readData(DataStorage dataStorage) {
-        // Store the data storage object
-        this.dataStorage = dataStorage;
         // Connect to the WebSocket server and read data
         try {
             connectBlocking();
@@ -66,7 +64,7 @@ public class SimpleWebSocketClient extends WebSocketClient implements DataReader
         if (!recordType.equals("Cholesterol") && !recordType.equals("WhiteBloodCells")
                 && !recordType.equals("RedBloodCells") && !recordType.equals("Saturation")
                 && !recordType.equals("Alert") && !recordType.equals("SystolicPressure")
-                && !recordType.equals("DiastolicPressure") && !recordType.equals("ECG")) {
+                && !recordType.equals("DiastolicPressure") && !recordType.equals("ECGData")) {
             throw new Exception("Invalid record type received from WebSocket server: " + recordType);
         }
 
@@ -76,12 +74,10 @@ public class SimpleWebSocketClient extends WebSocketClient implements DataReader
         if (patientId < 0) {
             throw new Exception("Invalid patient ID received from WebSocket server");
         }
-
-        // Add the data to the data storage
         try {
-            dataStorage.addPatientData(patientId, measurementValue, recordType, timestamp);
-        } catch (IllegalArgumentException e) {
-            System.err.println("An error occurred while adding the data to the data storage: " + e.getMessage());
+            dataManager.manageData(patientId, measurementValue, recordType, timestamp);
+        } catch (Exception e) {
+            throw new Exception("An error occurred when handing data to the dataManager: " + e.getMessage());
         }
     }
 
@@ -101,7 +97,7 @@ public class SimpleWebSocketClient extends WebSocketClient implements DataReader
         try {
             processData(message);
         } catch (Exception e) {
-            System.err.println("An error occurred while processing the data: " + e.getMessage());
+            System.err.println("onMessage in SimpleWebSocketClient: An error occurred while processing the data: " + e.getMessage());
         }
 	}
 
@@ -114,8 +110,4 @@ public class SimpleWebSocketClient extends WebSocketClient implements DataReader
 	public void onError(Exception ex) {
 		System.err.println("an error occurred:" + ex);
 	}
-
-    public DataStorage getDataStorage() {
-        return dataStorage;
-    }
 }

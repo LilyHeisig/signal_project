@@ -14,6 +14,7 @@ import com.alerts.AlertGenerator;
  */
 public class DataStorage {
     private Map<Integer, Patient> patientMap; // Stores patient objects indexed by their unique patient ID.
+    private AlertGenerator alertGenerator;
 
     /**
      * Constructs a new instance of DataStorage, initializing the underlying storage
@@ -21,6 +22,7 @@ public class DataStorage {
      */
     public DataStorage() {
         this.patientMap = new HashMap<>();
+        this.alertGenerator = new AlertGenerator(this);
     }
 
     /**
@@ -42,13 +44,19 @@ public class DataStorage {
             patient = new Patient(patientId);
             patientMap.put(patientId, patient);
         }
-        // Make sure the record is not already stored
-        if (patient.getRecords(timestamp, timestamp).get(0).getMeasurementValue() == measurementValue
-                && patient.getRecords(timestamp, timestamp).get(0).getRecordType() == recordType) {
-            throw new IllegalArgumentException("Record already exists.");
-        }else {
-            patient.addRecord(measurementValue, recordType, timestamp);
+        // Make sure the record is not already stored:
+        // Retrieve records for the specified timestamp range
+        List<PatientRecord> records = patient.getRecords(timestamp, (timestamp + 1));
+        // Check if there are any records
+        if (!records.isEmpty()) {
+            PatientRecord firstRecord = records.get(0);
+            // Ensure the record is not already stored
+            if (firstRecord.getMeasurementValue() == measurementValue && firstRecord.getRecordType().equals(recordType)) {
+                throw new IllegalArgumentException("Record already exists.");
+            }
         }
+        // Add the new record if it does not already exist
+        patient.addRecord(measurementValue, recordType, timestamp);
     }
 
     /**
@@ -118,4 +126,7 @@ public class DataStorage {
             System.err.println("An error occurred while evaluating patient data: " + e.getMessage());
         }
     } 
+    public Patient getPatient(int patientId) {
+        return patientMap.get(patientId);
+    }
 }
