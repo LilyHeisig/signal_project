@@ -6,40 +6,42 @@ import java.util.Random;
 
 public class AlertGenerator implements PatientDataGenerator {
 
-    public static final Random randomGenerator = new Random();
-    private boolean[] AlertStates; // false = resolved, true = pressed
+    // Constants should be in upper case with words separated by underscores
+    public static final Random RANDOM_GENERATOR = new Random(); // Changed to comply with naming convention for constants
+    
+    private boolean[] alertStates; // Changed variable name to comply with camelCase convention
 
     /**
      * Constructor for the AlertGenerator class.
-     * 
+     *
      * @param patientCount The number of patients
      */
     public AlertGenerator(int patientCount) {
-        AlertStates = new boolean[patientCount + 1];
+        alertStates = new boolean[patientCount + 1]; // Changed variable name to camelCase
     }
 
     /**
      * Generates alert data for a patient. Alerts are triggered randomly with a given average rate and resolved with a high probability.
-     * 
+     *
      * @param patientId      The ID of the patient
      * @param outputStrategy The output strategy to use
      */
     @Override
     public void generate(int patientId, OutputStrategy outputStrategy) {
         try {
-            if (AlertStates[patientId]) {
-                if (randomGenerator.nextDouble() < 0.9) { // 90% chance to resolve
-                    AlertStates[patientId] = false;
+            if (alertStates[patientId]) { // Changed variable name to camelCase
+                if (RANDOM_GENERATOR.nextDouble() < 0.9) { // Changed to use the constant name
+                    alertStates[patientId] = false; // Changed variable name to camelCase
                     // Output the alert
                     outputStrategy.output(patientId, System.currentTimeMillis(), "Alert", "resolved");
                 }
             } else {
-                double Lambda = 0.1; // Average rate (alerts per period), adjust based on desired frequency
-                double p = -Math.expm1(-Lambda); // Probability of at least one alert in the period
-                boolean alertTriggered = randomGenerator.nextDouble() < p;
+                double lambda = 0.1; // Variable names should be in camelCase
+                double p = -Math.expm1(-lambda); // Variable names should be in camelCase
+                boolean alertTriggered = RANDOM_GENERATOR.nextDouble() < p; // Changed to use the constant name
 
                 if (alertTriggered) {
-                    AlertStates[patientId] = true;
+                    alertStates[patientId] = true; // Changed variable name to camelCase
                     // Output the alert
                     outputStrategy.output(patientId, System.currentTimeMillis(), "Alert", "triggered");
                 }
