@@ -46,7 +46,7 @@ public class DataManager {
      * The Constructor is private and the getInstance method is static.
      */
     private DataManager() { 
-        this.dataStorage = new DataStorage();
+        this.dataStorage = DataStorage.getInstance();
         this.alertGenerator = new AlertGenerator(dataStorage);
     }
     public static DataManager getInstance() {

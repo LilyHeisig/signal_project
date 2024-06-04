@@ -127,7 +127,7 @@ public class SimpleWebSocketClientTest {
             URI uri = new URI("ws://localhost:3503");
             SimpleWebSocketClient client = new SimpleWebSocketClient(uri);
 
-            client.readData(new DataStorage());
+            client.readData(DataStorage.getInstance());
             System.out.println("Client is open: " + client.isOpen());
 
             // prepare the message
@@ -166,7 +166,7 @@ public class SimpleWebSocketClientTest {
             URI uri = new URI("ws://localhost:3503");
             SimpleWebSocketClient client = new SimpleWebSocketClient(uri);
 
-            client.readData(new DataStorage());
+            client.readData(DataStorage.getInstance());
             System.out.println("Client is open: " + client.isOpen());
 
             // send the message
@@ -207,7 +207,7 @@ public class SimpleWebSocketClientTest {
             URI uri = new URI("ws://localhost:3503");
             SimpleWebSocketClient client = new SimpleWebSocketClient(uri);
 
-            client.readData(new DataStorage());
+            client.readData(DataStorage.getInstance());
             System.out.println("Client is open: " + client.isOpen());
 
             // send the message
@@ -267,7 +267,7 @@ public class SimpleWebSocketClientTest {
             URI uri = new URI("ws://localhost:3503");
             SimpleWebSocketClient client = new SimpleWebSocketClient(uri);
 
-            client.readData(new DataStorage());
+            client.readData(DataStorage.getInstance());
             System.out.println("Client is open: " + client.isOpen());
 
             long time = System.currentTimeMillis();

@@ -11,7 +11,7 @@ public class FileDataReaderTest {
     @Test
     void testFileDataReader() {
         FileDataReader reader = new FileDataReader("src/test/resources/test_data.csv");
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         assertDoesNotThrow(() -> reader.readData(storage));
     }
     

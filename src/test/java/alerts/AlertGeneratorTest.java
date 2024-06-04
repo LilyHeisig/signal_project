@@ -28,7 +28,7 @@ public class AlertGeneratorTest {
      */
     @Test
     void testIsECGDataCritical() throws Exception {
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         AlertGenerator alertGenerator = new AlertGenerator(storage);
         int patientId = 1;
 
@@ -57,7 +57,7 @@ public class AlertGeneratorTest {
      */
     @Test
     void testIsBloodSaturationCritical() throws Exception {
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         AlertGenerator alertGenerator = new AlertGenerator(storage);
         int patientId = 1;
 
@@ -84,7 +84,7 @@ public class AlertGeneratorTest {
      */
     @Test
     void testIsBloodPressureCritical() throws Exception {
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         AlertGenerator alertGenerator = new AlertGenerator(storage);
         int patientId = 1;
 
@@ -117,7 +117,7 @@ public class AlertGeneratorTest {
      */
     @Test
     void testIsBloodPressureCriticalThreshold() throws Exception {
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         AlertGenerator alertGenerator = new AlertGenerator(storage);
         int patientId = 1;
 
@@ -148,7 +148,7 @@ public class AlertGeneratorTest {
      */
     @Test
     void testIsThereHypotensiveHypoxemia() throws Exception {
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         AlertGenerator alertGenerator = new AlertGenerator(storage);
         int patientId = 1;
 
@@ -177,7 +177,7 @@ public class AlertGeneratorTest {
      */
     @Test
     void testECGAlertGenerator() {
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         int patientId = 1;
         Patient patient = new Patient(patientId);
         long time = System.currentTimeMillis();
