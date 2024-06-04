@@ -1,6 +1,11 @@
 package com.data_management;
 
+import java.net.URI;
+
 import com.alerts.AlertGenerator;
+import com.cardio_generator.HealthDataSimulator;
+import com.data_management.DataReader;
+import com.data_management.SimpleWebSocketClient;
 
 /**
  * This class is responsible for managing the data within the healthcare monitoring system.
@@ -10,6 +15,30 @@ public class DataManager {
     private DataStorage dataStorage;
     private static DataManager instance;
     private AlertGenerator alertGenerator;
+
+    /**
+     * Main method of the application. Initialises the data generation system.
+     */
+    public static void main(String[] args) {
+        // Create an instance of the DataManager
+        DataManager dataManager = DataManager.getInstance();
+        // Set the arguments for the data generation system
+        args = "--patient-count 100 --output websocket:8080".split(" ");
+        // start the data generation system
+        try {
+            HealthDataSimulator.main(args);
+        } catch (Exception e) {
+            System.err.println("DataManager found: An error occurred while starting the data generation system. " + e.getMessage());
+        }
+        // start the data management system
+        try {
+            URI uri = new URI("ws://localhost:8080");
+            DataReader reader = new SimpleWebSocketClient(uri);
+            reader.readData(dataManager.getDataStorage());
+        } catch (Exception e) {
+            System.err.println("DataManager found: An error occurred while starting the data management system. " + e.getMessage());
+        }
+    }
 
     /**
      * I use a singleton design pattern to ensure that only one instance of the DataManager is created:
@@ -53,7 +82,7 @@ public class DataManager {
     }
     
     /**
-     * Getter for the data storage. Mainly for testing purposes.
+     * Getter for the data storage.
      */
     public DataStorage getDataStorage() {
         return dataStorage;
