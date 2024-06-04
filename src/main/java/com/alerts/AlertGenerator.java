@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.text.SimpleAttributeSet;
-
 /**
  * The {@code AlertGenerator} class is responsible for monitoring patient data
  * and generating alerts when certain predefined conditions are met. This class
@@ -48,22 +46,8 @@ public class AlertGenerator {
      *
      * @param patient the patient data to evaluate for alert conditions
      */
-    public void evaluateData(Patient patient) throws Exception {
+    public void evaluateData(Patient patient, List<PatientRecord> patientRecords) throws Exception {
         System.out.println("AlertGenerator got data. Evaluating...");
-        // find the relevant start and end time of the data
-        long currentTime = System.currentTimeMillis();
-        long startTime = currentTime - 86400000; // 24 hours ago - do we need that much data?
-
-        // Extract relevant data from the patient records
-        //List<PatientRecord> patientRecords = patient.getRecords(startTime, currentTime);
-
-        int patientId = patient.getPatientId();
-
-        System.out.println("fetching patient records");
-        List<PatientRecord> patientRecords = dataStorage.getRecords(patientId, startTime, currentTime);
-
-
-
         if (patientRecords.isEmpty() == true) {
             return;
         }
@@ -76,11 +60,11 @@ public class AlertGenerator {
         System.out.println("sorting patient records");
         for (int i = 0; i < patientRecords.size(); i++) {
             PatientRecord patientRecord = patientRecords.get(i);
-            if (patientRecord.getRecordType().equals("SystolicBloodPressure")) {
+            if (patientRecord.getRecordType().equals("SystolicPressure")) {
                 systolicPressure.add(patientRecord);
-            } else if (patientRecord.getRecordType().equals("DiastolicBloodPressure")) {
+            } else if (patientRecord.getRecordType().equals("DiastolicPressure")) {
                 diastolicPressure.add(patientRecord);
-            } else if (patientRecord.getRecordType().equals("BloodOxygenSaturation")) {
+            } else if (patientRecord.getRecordType().equals("Saturation")) {
                 saturation.add(patientRecord);
             } else if (patientRecord.getRecordType().equals("ECGData")) {
                 ecgData.add(patientRecord);
@@ -89,7 +73,10 @@ public class AlertGenerator {
                 throw new Exception("Unknown record type: " + patientRecord.getRecordType());
             }
         }
-
+        // get the current time
+        long currentTime = System.currentTimeMillis();
+        // get the patient id
+        int patientId = patient.getPatientId();
         // Check for critical conditions
         System.out.println("checking for critical conditions");
         if (isBloodPressureCritical(systolicPressure, diastolicPressure)) {
@@ -98,11 +85,11 @@ public class AlertGenerator {
         if (isBloodSaturationCritical(saturation)) {
             triggerAlert(new Alert(patientId, "BloodSaturation", currentTime));
         }
-        if (isThereHypotensiveHypoxemia(saturation, systolicPressure)) {
-            triggerAlert(new Alert(patientId, "HypotensiveHypoxemia", currentTime));
-        }
         if (isECGDataCritical(ecgData)) {
             triggerAlert(new Alert(patientId, "WeirdECGData", currentTime));
+        }
+        if (isThereHypotensiveHypoxemia(saturation, systolicPressure)) {
+            triggerAlert(new Alert(patientId, "HypotensiveHypoxemia", currentTime));
         }
     }
 
@@ -218,9 +205,11 @@ public class AlertGenerator {
         // compute the standard deviation of the ecdData leaving out the last element
         double standardDeviation = Math.sqrt(ecgData.stream().limit(ecgData.size() - 1)
                 .mapToDouble(PatientRecord::getMeasurementValue).map(x -> Math.pow(x - average, 2)).average().orElse(0));
-        // check if the last element is two standard deviations beyond the average 
-        // (so the data comes from the normal distribution with 95% confidence interval)
-        if (ecgData.get(ecgData.size() - 1).getMeasurementValue() > average + 2 * standardDeviation) {
+        // check if the last element is 3 standard deviations beyond the average 
+        // (so the data comes from the normal distribution with 99.7% confidence interval)
+        double standardDeviationsBeyondAverage = 3;
+        if (ecgData.get(ecgData.size() - 1).getMeasurementValue() > average + standardDeviationsBeyondAverage * standardDeviation
+                || ecgData.get(ecgData.size() - 1).getMeasurementValue() < average - standardDeviationsBeyondAverage * standardDeviation){
             return true;
         }
         return false;
@@ -242,7 +231,7 @@ public class AlertGenerator {
         // log the alert
 
         // notify staff
-        alertPublisher.notify();
+        alertPublisher.publishAlert(alert);
         System.out.println("notified staff device");
     }
 }

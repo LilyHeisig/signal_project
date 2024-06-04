@@ -202,7 +202,7 @@ public class AlertGeneratorTest {
         System.setOut(new PrintStream(outContent));
 
         try {
-            alertGenerator.evaluateData(patient);
+            alertGenerator.evaluateData(patient, records);
         } catch (Exception e) {
             System.err.println("An error occurred while evaluating patient data: " + e.getMessage());
         }

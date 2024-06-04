@@ -1,6 +1,7 @@
 package com.data_management;
 
 import java.net.URI;
+import java.util.List;
 
 import com.alerts.AlertGenerator;
 import com.cardio_generator.HealthDataSimulator;
@@ -74,11 +75,20 @@ public class DataManager {
         // Send the data to the AlertGenerator
         System.out.println("DataManager: Sending data to the AlertGenerator...");
         try {
-            alertGenerator.evaluateData(dataStorage.getPatient(patientId));
+            alertGenerator.evaluateData(dataStorage.getPatient(patientId), getRecords(patientId));
             System.out.println("DataManager: Data sent to the AlertGenerator.");
         } catch (Exception e) {
             System.err.println("DataManager found: An error occurred while evaluating the patient data. " + e.getMessage());
         }
+    }
+
+    private List<PatientRecord> getRecords(int patientId) {
+        // find the relevant start and end time of the data
+        long currentTime = System.currentTimeMillis();
+        // set the start time at 6 hours ago
+        long startTime = currentTime - 6 * 60 * 60 * 1000;
+        System.out.println("fetching patient records");
+        return dataStorage.getRecords(patientId, startTime, currentTime);
     }
     
     /**

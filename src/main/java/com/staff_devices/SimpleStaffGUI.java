@@ -2,37 +2,44 @@ package com.staff_devices;
 
 import javax.swing.*;
 import java.awt.*;
-
 import com.alerts.Alert;
-import com.staff_devices.StaffDevice;
 
 public class SimpleStaffGUI implements StaffDevice {
+    private JFrame frame;
+    private JTextArea textArea;
+
+    public SimpleStaffGUI() {
+        SwingUtilities.invokeLater(() -> {
+            // Create the frame
+            frame = new JFrame("Alert");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(800, 300);
+
+            // Create a text area to display alerts
+            textArea = new JTextArea();
+            textArea.setFont(new Font("Arial", Font.PLAIN, 16));
+            textArea.setEditable(false);
+
+            // Wrap the text area in a scroll pane
+            JScrollPane scrollPane = new JScrollPane(textArea);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+            // Add the scroll pane to the frame
+            frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+
+            // Make the frame visible
+            frame.setVisible(true);
+        });
+    }
 
     @Override
     public void displayAlert(Alert alert) {
         SwingUtilities.invokeLater(() -> {
-            // Create the frame
-            JFrame frame = new JFrame("Alert");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(300, 150);
+            // Prepare text to be displayed
+            String text = String.format("Patient Number %d has condition %s\n", alert.getPatientId(), alert.getCondition());
 
-            // prepare text to be displayed
-            String text = String.format("Patient Number %d has condition %s", alert.getPatientId(), alert.getCondition());
-
-            // Create a label to display the alert text
-            JLabel alertLabel = new JLabel(text, SwingConstants.CENTER);
-
-            // Optionally set the font and padding for better display
-            alertLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-            alertLabel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-            // Add the label to the frame
-            frame.getContentPane().add(alertLabel, BorderLayout.CENTER);
-
-            // Make the frame visible
-            frame.setVisible(true);
-    });
-}
-
-    
+            // Append the new alert text to the text area
+            textArea.append(text);
+        });
+    }
 }

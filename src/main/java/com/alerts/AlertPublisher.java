@@ -3,8 +3,6 @@ package com.alerts;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.data_management.DataManager;
-import com.data_management.DataStorage;
 import com.staff_devices.StaffDevice;
 
 public class AlertPublisher {
@@ -32,5 +30,11 @@ public class AlertPublisher {
 
     public void unsubscribe(StaffDevice device) {
         subscribers.remove(device);
+    }
+
+    public void publishAlert(Alert alert) {
+        for(StaffDevice device : subscribers) {
+            device.displayAlert(alert);
+        }
     }
 }

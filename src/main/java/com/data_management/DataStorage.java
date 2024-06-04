@@ -14,7 +14,6 @@ import com.alerts.AlertGenerator;
  */
 public class DataStorage {
     private Map<Integer, Patient> patientMap; // Stores patient objects indexed by their unique patient ID.
-    private AlertGenerator alertGenerator;
 
     /**
      * Constructs a new instance of DataStorage, initializing the underlying storage
@@ -22,7 +21,6 @@ public class DataStorage {
      */
     public DataStorage() {
         this.patientMap = new HashMap<>();
-        this.alertGenerator = new AlertGenerator(this);
     }
 
     /**
@@ -94,6 +92,8 @@ public class DataStorage {
      * Initializes the system, reads data into storage, and continuously monitors
      * and evaluates patient data.
      * 
+     * NOTE: I'm not using this main method in the final implementation.
+     * 
      * @param args command line arguments
      */
     public static void main(String[] args) {
@@ -120,7 +120,7 @@ public class DataStorage {
         // Evaluate all patients' data to check for conditions that may trigger alerts
         try {
             for (Patient patient : storage.getAllPatients()) {
-                alertGenerator.evaluateData(patient);
+                alertGenerator.evaluateData(patient, storage.getRecords(patient.getPatientId(), System.currentTimeMillis() - 6 * 60 * 60 * 1000, System.currentTimeMillis()));
             }
         } catch (Exception e) {
             System.err.println("An error occurred while evaluating patient data: " + e.getMessage());

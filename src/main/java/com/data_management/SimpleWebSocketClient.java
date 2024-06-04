@@ -46,7 +46,8 @@ public class SimpleWebSocketClient extends WebSocketClient implements DataReader
             throw new Exception("Invalid patient ID format received from WebSocket server");
         }
         try {
-            measurementValue = Double.parseDouble(parts[3]);
+            String measurementValueStr = parts[3].replace("%", "");
+            measurementValue = Double.parseDouble(measurementValueStr);
         } catch (Exception e) {
             throw new Exception("Invalid measurement value format received from WebSocket server");
         }
