@@ -47,7 +47,7 @@ public class DataManager {
      */
     private DataManager() { 
         this.dataStorage = DataStorage.getInstance();
-        this.alertGenerator = new AlertGenerator(dataStorage);
+        this.alertGenerator = new AlertGenerator();
     }
     public static DataManager getInstance() {
         if (instance == null) {

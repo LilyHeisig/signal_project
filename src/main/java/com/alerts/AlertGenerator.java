@@ -1,14 +1,17 @@
 package com.alerts;
 
+import com.alerts.alert_strategies.BloodPressureAlertStrategy;
+import com.alerts.alert_strategies.ECGDataAlertStrategy;
+import com.alerts.alert_strategies.HypotensiveHypoxemiaAlertStrategy;
+import com.alerts.alert_strategies.OxygenSaturationAlertStrategy;
 import com.data_management.DataStorage;
 import com.data_management.Patient;
 import com.data_management.PatientRecord;
 import com.staff_devices.SimpleStaffGUI;
 import com.staff_devices.StaffDevice;
-
+import com.alerts.alert_strategies.AlertStrategy;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -18,8 +21,8 @@ import java.util.List;
  * it against specific health criteria.
  */
 public class AlertGenerator {
-    private DataStorage dataStorage;
     private AlertPublisher alertPublisher;
+    private List<AlertStrategy> alertStrategies;
 
     /**
      * Constructs an {@code AlertGenerator} with a specified {@code DataStorage}.
@@ -29,11 +32,26 @@ public class AlertGenerator {
      * @param dataStorage the data storage system that provides access to patient
      *                    data
      */
-    public AlertGenerator(DataStorage dataStorage) {
-        this.dataStorage = dataStorage;
+    public AlertGenerator() {
         this.alertPublisher = AlertPublisher.getInstance();
-        StaffDevice device = new SimpleStaffGUI();
+        StaffDevice device = new SimpleStaffGUI(); //ngl this could be better designed to allow for different devices
         alertPublisher.subscribe(device);
+        alertStrategies = new ArrayList<AlertStrategy>();
+        alertStrategies.add(new BloodPressureAlertStrategy());
+        alertStrategies.add(new OxygenSaturationAlertStrategy());
+        alertStrategies.add(new HypotensiveHypoxemiaAlertStrategy());
+        alertStrategies.add(new ECGDataAlertStrategy());
+    }
+
+    /**
+     * Another constructor that lets you specify the alert strategies to use.
+     * @param alertStrategies
+     */
+    public AlertGenerator(List<AlertStrategy> alertStrategies) {
+        this.alertPublisher = AlertPublisher.getInstance();
+        StaffDevice device = new SimpleStaffGUI(); //ngl this could be better designed to allow for different devices
+        alertPublisher.subscribe(device);
+        this.alertStrategies = alertStrategies;
     }
 
     /**
@@ -51,168 +69,13 @@ public class AlertGenerator {
         if (patientRecords.isEmpty() == true) {
             return;
         }
-        // filter the patient records for the specific record types
-        List<PatientRecord> systolicPressure = new ArrayList<PatientRecord>();
-        List<PatientRecord> diastolicPressure = new ArrayList<PatientRecord>();
-        List<PatientRecord> saturation = new ArrayList<PatientRecord>();
-        List<PatientRecord> ecgData = new ArrayList<PatientRecord>();
-
-        System.out.println("sorting patient records");
-        for (int i = 0; i < patientRecords.size(); i++) {
-            PatientRecord patientRecord = patientRecords.get(i);
-            if (patientRecord.getRecordType().equals("SystolicPressure")) {
-                systolicPressure.add(patientRecord);
-            } else if (patientRecord.getRecordType().equals("DiastolicPressure")) {
-                diastolicPressure.add(patientRecord);
-            } else if (patientRecord.getRecordType().equals("Saturation")) {
-                saturation.add(patientRecord);
-            } else if (patientRecord.getRecordType().equals("ECGData")) {
-                ecgData.add(patientRecord);
-            }
-            else {
-                throw new Exception("Unknown record type: " + patientRecord.getRecordType());
+        // check if the patient has any alerts using the alert strategies and trigger an alert if necessary
+        for (AlertStrategy alertStrategy : alertStrategies) {
+            Alert alert = alertStrategy.checkAlert(patientRecords); //checkAlerts returns a relevant Alert
+            if (alert != null) {
+                triggerAlert(alert);
             }
         }
-        // get the current time
-        long currentTime = System.currentTimeMillis();
-        // get the patient id
-        int patientId = patient.getPatientId();
-        // Check for critical conditions
-        System.out.println("checking for critical conditions");
-        if (isBloodPressureCritical(systolicPressure, diastolicPressure)) {
-            triggerAlert(new Alert(patientId, "BloodPressure", currentTime));
-        }
-        if (isBloodSaturationCritical(saturation)) {
-            triggerAlert(new Alert(patientId, "BloodSaturation", currentTime));
-        }
-        if (isECGDataCritical(ecgData)) {
-            triggerAlert(new Alert(patientId, "WeirdECGData", currentTime));
-        }
-        if (isThereHypotensiveHypoxemia(saturation, systolicPressure)) {
-            triggerAlert(new Alert(patientId, "HypotensiveHypoxemia", currentTime));
-        }
-    }
-
-    /**
-     * Determines two types of alerts based on the patient's blood pressure readings:
-     * 
-     * Trend Alert:
-     *      Trigger an alert if the patient's blood pressure (systolic or diastolic)
-     *      shows a consistent increase or decrease across three consecutive readings
-     *       where each reading changes by more than 10 mmHg from the last.
-     * Critical Threshold Alert:
-     *      Trigger an alert if the systolic blood pressure exceeds 180 mmHg or drops
-     *      below 90 mmHg, or if diastolic blood pressure exceeds 120 mmHg or drops
-     *      below 60 mmHg.
-     * @param The patient's blood pressure readings
-     * @return
-     */
-    private boolean isBloodPressureCritical(List<PatientRecord> systolicPressure, List<PatientRecord> diastolicPressure) {
-        // Trend alert
-        List<List<PatientRecord>> pressure_list = Arrays.asList(systolicPressure, diastolicPressure);
-        for (List<PatientRecord> pressure : pressure_list) {
-            if (pressure.isEmpty() == true) {
-                continue;
-            }
-            for (int i = 0; i < pressure.size() - 2; i++) {
-                if (Math.abs(pressure.get(i).getMeasurementValue() - pressure.get(i + 1).getMeasurementValue()) > 10
-                        && Math.abs(pressure.get(i + 1).getMeasurementValue() - pressure.get(i + 2).getMeasurementValue()) > 10) {
-                    return true; //might also wrongly return an alert if the values are decreasing first, then increasing or vice versa
-                }
-            }
-        }
-        // Critical threshold alert
-        if (systolicPressure.isEmpty() == false
-                && (systolicPressure.get(systolicPressure.size()-1).getMeasurementValue() > 180
-                || systolicPressure.get(systolicPressure.size()-1).getMeasurementValue() < 90)) {
-            return true;
-        } else if(diastolicPressure.isEmpty() == false
-                && (diastolicPressure.get(diastolicPressure.size()-1).getMeasurementValue() > 120
-                || diastolicPressure.get(diastolicPressure.size()-1).getMeasurementValue() < 60)) {
-            return true;
-        }
-        // if no conditions are met
-        return false;
-    }
-
-    /**
-     * Determines if the patient's blood saturation data is critical. Two scenarios are detected:
-     *      Low Saturation Alert:
-     *          Trigger an alert if the blood oxygen saturation level falls below 92%.
-     *      Rapid Drop Alert:
-     *          Trigger an alert if the blood oxygen saturation level drops by 5% or more
-     *          within a 10-minute interval.
-     * 
-     * @param saturation the patient's blood saturation data
-     */
-    private boolean isBloodSaturationCritical(List<PatientRecord> saturation) {
-        if (saturation.isEmpty() == true) {
-            return false;
-        }
-        // Low saturation alert
-        if (saturation.get(saturation.size()-1).getMeasurementValue() < 92) {
-            return true;
-        }
-        // Rapid drop alert
-        for (int i = 0; i < saturation.size() - 1; i++) {
-            for (int j = i + 1; j < saturation.size(); j++) {
-                // only check saturation if the timestamps are within a 10 minute interval
-                if (saturation.get(j).getTimestamp() - saturation.get(i).getTimestamp() < 600000) {
-                    break;
-                }
-                // if the saturation drops by 5% or more (within a 10-minute interval)
-                if (saturation.get(i).getMeasurementValue() - saturation.get(j).getMeasurementValue() >= 5) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    /**
-     * Determines if the patient has hypotensive hypoxemia.
-     * The alert should trigger when both:
-     *      - Systolic blood pressure is below 90 mmHg.
-     *      - Blood oxygen saturation falls below 92%.
-     */
-    private boolean isThereHypotensiveHypoxemia(List<PatientRecord> saturation, List<PatientRecord> systolicPressure) {
-        if (systolicPressure.isEmpty() == true || saturation.isEmpty() == true) {
-            return false;
-        }
-        if (systolicPressure.get(systolicPressure.size()-1).getMeasurementValue() < 90
-                && saturation.get(saturation.size()-1).getMeasurementValue() < 92) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * ECG Data Alerts find abnormal data.
-     * This means: Trigger an alert if peaks above certain values happen.
-     *      Measure the average data generated using a sliding window. Then if any
-     *      peaks occur far beyond the current average generate an alert.
-     * @param alert
-     */
-
-    private boolean isECGDataCritical(List<PatientRecord> ecgData) {
-        // need at least 3 data points to compute the average and standard deviation
-        // between the first two points and compare it to the third
-        if (ecgData.size() < 3) { 
-            return false;
-        }
-        // compute the average of the ecgData measurement values leaving out the last element
-        double average = ecgData.stream().limit(ecgData.size() - 1).mapToDouble(PatientRecord::getMeasurementValue).average()
-                .orElse(0);
-        // compute the standard deviation of the ecdData leaving out the last element
-        double standardDeviation = Math.sqrt(ecgData.stream().limit(ecgData.size() - 1)
-                .mapToDouble(PatientRecord::getMeasurementValue).map(x -> Math.pow(x - average, 2)).average().orElse(0));
-        // check if the last element is 3 standard deviations beyond the average 
-        // (so the data comes from the normal distribution with 99.7% confidence interval)
-        double standardDeviationsBeyondAverage = 3;
-        if (ecgData.get(ecgData.size() - 1).getMeasurementValue() > average + standardDeviationsBeyondAverage * standardDeviation
-                || ecgData.get(ecgData.size() - 1).getMeasurementValue() < average - standardDeviationsBeyondAverage * standardDeviation){
-            return true;
-        }
-        return false;
     }
 
     /**

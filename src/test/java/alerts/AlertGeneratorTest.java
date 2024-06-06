@@ -29,7 +29,7 @@ public class AlertGeneratorTest {
     @Test
     void testIsECGDataCritical() throws Exception {
         DataStorage storage = DataStorage.getInstance();
-        AlertGenerator alertGenerator = new AlertGenerator(storage);
+        AlertGenerator alertGenerator = new AlertGenerator();
         int patientId = 1;
 
         ArrayList<PatientRecord> records = new ArrayList<>();
@@ -58,7 +58,7 @@ public class AlertGeneratorTest {
     @Test
     void testIsBloodSaturationCritical() throws Exception {
         DataStorage storage = DataStorage.getInstance();
-        AlertGenerator alertGenerator = new AlertGenerator(storage);
+        AlertGenerator alertGenerator = new AlertGenerator();
         int patientId = 1;
 
         ArrayList<PatientRecord> records = new ArrayList<>();
@@ -85,7 +85,7 @@ public class AlertGeneratorTest {
     @Test
     void testIsBloodPressureCritical() throws Exception {
         DataStorage storage = DataStorage.getInstance();
-        AlertGenerator alertGenerator = new AlertGenerator(storage);
+        AlertGenerator alertGenerator = new AlertGenerator();
         int patientId = 1;
 
 
@@ -118,7 +118,7 @@ public class AlertGeneratorTest {
     @Test
     void testIsBloodPressureCriticalThreshold() throws Exception {
         DataStorage storage = DataStorage.getInstance();
-        AlertGenerator alertGenerator = new AlertGenerator(storage);
+        AlertGenerator alertGenerator = new AlertGenerator();
         int patientId = 1;
 
         ArrayList<PatientRecord> systolicPressure = new ArrayList<>();
@@ -149,7 +149,7 @@ public class AlertGeneratorTest {
     @Test
     void testIsThereHypotensiveHypoxemia() throws Exception {
         DataStorage storage = DataStorage.getInstance();
-        AlertGenerator alertGenerator = new AlertGenerator(storage);
+        AlertGenerator alertGenerator = new AlertGenerator();
         int patientId = 1;
 
         ArrayList<PatientRecord> bloodSaturation = new ArrayList<>();
@@ -193,7 +193,7 @@ public class AlertGeneratorTest {
         List<PatientRecord> records = storage.getRecords(patientId, (time-10000L), time);
         assertEquals(6, records.size());
 
-        AlertGenerator alertGenerator = new AlertGenerator(storage);
+        AlertGenerator alertGenerator = new AlertGenerator();
         // Check if the alert is generated
         // Create a stream to hold the output
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();

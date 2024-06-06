@@ -1,0 +1,34 @@
+package com.alerts;
+
+public class HypotensiveHypoxemiaAlert implements Alert{
+    private int patientId;
+    private long timestamp;
+    private String condition = "Hypotensive Hypoxemia";
+    private String message = "Hypotensive Hypoxemia alert triggered for patient number " + patientId + ", at time " + timestamp;
+
+    public HypotensiveHypoxemiaAlert(int patientId, long timestamp){
+        this.patientId = patientId;
+        this.timestamp = timestamp;
+    }
+
+    @Override
+    public String getCondition() {
+        return condition;
+    }
+
+    @Override
+    public int getPatientId() {
+        return patientId;
+    }
+
+    @Override
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
+    
+}
