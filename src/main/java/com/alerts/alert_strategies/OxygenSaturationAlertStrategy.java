@@ -5,7 +5,9 @@ import com.data_management.PatientRecord;
 import com.alerts.Alert;
 import com.alerts.BloodOxygenAlertFactory;
 import java.util.ArrayList;
-
+/**
+ * The {@code OxygenSaturationAlertStrategy} class is used to check for alerts related to blood oxygen saturation levels.
+ */
 public class OxygenSaturationAlertStrategy implements AlertStrategy{
     private BloodOxygenAlertFactory alertFactory;
 

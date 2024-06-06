@@ -1,5 +1,7 @@
 package com.alerts;
-
+/**
+ * The {@code BloodOxygenAlert} class represents an alert that can be displayed to staff members.
+ */
 public class BloodOxygenAlert implements Alert{
     private int patientId;
     private long timestamp;

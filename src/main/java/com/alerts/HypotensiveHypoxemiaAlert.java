@@ -1,5 +1,7 @@
 package com.alerts;
-
+/**
+ * The {@code HypotensiveHypoxemiaAlert} class represents an alert that can be displayed to staff members.
+ */
 public class HypotensiveHypoxemiaAlert implements Alert{
     private int patientId;
     private long timestamp;

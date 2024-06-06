@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import com.alerts.BloodPressureAlertFactory;
 import com.data_management.PatientRecord;
 import com.alerts.Alert;
-
+/**
+ * The {@code BloodPressureAlertStrategy} class is used to check for alerts related to blood pressure readings.
+ */
 public class BloodPressureAlertStrategy implements AlertStrategy{
     private BloodPressureAlertFactory AlertFactory;
     

@@ -5,7 +5,9 @@ import com.data_management.PatientRecord;
 import com.alerts.Alert;
 import com.alerts.ECGAlertFactory;
 import java.util.ArrayList;
-
+/**
+ * The {@code ECGDataAlertStrategy} class is used to check for alerts in ECG data.
+ */
 public class ECGDataAlertStrategy implements AlertStrategy{
     private ECGAlertFactory alertFactory;
     

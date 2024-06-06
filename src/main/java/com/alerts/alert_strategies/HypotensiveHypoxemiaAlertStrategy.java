@@ -5,7 +5,9 @@ import java.util.List;
 import com.data_management.PatientRecord;   
 import com.alerts.Alert;
 import com.alerts.HypotensiveHypoxemiaAlertFactory;
-
+/**
+ * The {@code HypotensiveHypoxemiaAlertStrategy} class is used to check for hypotensive hypoxemia alerts.
+ */
 public class HypotensiveHypoxemiaAlertStrategy implements AlertStrategy{
     private HypotensiveHypoxemiaAlertFactory alertFactory;
 

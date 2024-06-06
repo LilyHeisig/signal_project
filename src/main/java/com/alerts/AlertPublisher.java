@@ -5,6 +5,9 @@ import java.util.List;
 
 import com.staff_devices.StaffDevice;
 
+/**
+ * The {@code AlertPublisher} class is used to publish alerts to staff devices.
+ */
 public class AlertPublisher {
 
     private List<StaffDevice> subscribers;

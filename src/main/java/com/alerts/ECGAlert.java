@@ -1,5 +1,7 @@
 package com.alerts;
-
+/**
+ * The {@code ECGAlert} class represents an alert that is triggered when an ECG alert is detected.
+ */
 public class ECGAlert implements Alert{
     
     private int patientId;

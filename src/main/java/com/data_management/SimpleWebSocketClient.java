@@ -5,7 +5,9 @@ import java.nio.ByteBuffer;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-
+/**
+ * The {@code SimpleWebSocketClient} class is used to connect to a WebSocket server and read data.
+ */
 public class SimpleWebSocketClient extends WebSocketClient implements DataReader {
     private DataManager dataManager;
 

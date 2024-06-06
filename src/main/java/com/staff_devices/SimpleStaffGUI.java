@@ -3,7 +3,9 @@ package com.staff_devices;
 import javax.swing.*;
 import java.awt.*;
 import com.alerts.Alert;
-
+/**
+ * The {@code SimpleStaffGUI} class is used to display alerts in a simple GUI.
+ */
 public class SimpleStaffGUI implements StaffDevice {
     private JFrame frame;
     private JTextArea textArea;
@@ -36,7 +38,7 @@ public class SimpleStaffGUI implements StaffDevice {
     public void displayAlert(Alert alert) {
         SwingUtilities.invokeLater(() -> {
             // Prepare text to be displayed
-            String text = String.format("Patient Number %d has condition %s\n", alert.getPatientId(), alert.getCondition());
+            String text = alert.getMessage() + "\n";
 
             // Append the new alert text to the text area
             textArea.append(text);
