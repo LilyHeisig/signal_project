@@ -1,216 +1,130 @@
 package alerts;
 
-import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import com.alerts.Alert;
 import com.alerts.AlertGenerator;
+import com.alerts.AlertPublisher;
+import com.alerts.alert_strategies.*;
+import com.data_management.DataStorage;
 import com.data_management.Patient;
 import com.data_management.PatientRecord;
-import com.data_management.DataStorage;
+import com.staff_devices.SimpleStaffGUI;
+import com.staff_devices.StaffDevice;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
-import java.lang.reflect.Method;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class AlertGeneratorTest {
 
-    /**
-     * This test should check if the ECGData method in the alert generator
-     * used to determine alerts from incoming patient data are working correctly.
-     * It simulates a scenario where the ECGData is critical.
-     * 
-     * param: none
-     */
-    @Test
-    void testIsECGDataCritical() throws Exception {
-        DataStorage storage = DataStorage.getInstance();
-        AlertGenerator alertGenerator = new AlertGenerator();
-        int patientId = 1;
+    private AlertGenerator alertGenerator;
+    private AlertPublisher alertPublisherMock;
+    private AlertStrategy bloodPressureAlertStrategyMock;
+    private AlertStrategy oxygenSaturationAlertStrategyMock;
+    private AlertStrategy hypotensiveHypoxemiaAlertStrategyMock;
+    private AlertStrategy ecgDataAlertStrategyMock;
 
-        ArrayList<PatientRecord> records = new ArrayList<>();
-        records.add(new PatientRecord(patientId, 100.0, "ECGData", 1714376789050L));
-        records.add(new PatientRecord(patientId, 200.0, "ECGData", 1714376789051L));
-        records.add(new PatientRecord(patientId, 100.0, "ECGData", 1714376789052L));
-        records.add(new PatientRecord(patientId, 200.0, "ECGData", 1714376789053L));
-        records.add(new PatientRecord(patientId, 100.0, "ECGData", 1714376789054L));
-        records.add(new PatientRecord(patientId, 600.0, "ECGData", 1714376789055L));
+    @BeforeEach
+    public void setUp() {
+        alertPublisherMock = mock(AlertPublisher.class);
+        bloodPressureAlertStrategyMock = mock(BloodPressureAlertStrategy.class);
+        oxygenSaturationAlertStrategyMock = mock(OxygenSaturationAlertStrategy.class);
+        hypotensiveHypoxemiaAlertStrategyMock = mock(HypotensiveHypoxemiaAlertStrategy.class);
+        ecgDataAlertStrategyMock = mock(ECGDataAlertStrategy.class);
 
-        // Check if the method returns true on this input
-        Method method = AlertGenerator.class.getDeclaredMethod("isECGDataCritical", List.class);
-        method.setAccessible(true);
-        Object result = method.invoke(alertGenerator, records);
+        List<AlertStrategy> alertStrategies = Arrays.asList(
+                bloodPressureAlertStrategyMock,
+                oxygenSaturationAlertStrategyMock,
+                hypotensiveHypoxemiaAlertStrategyMock,
+                ecgDataAlertStrategyMock
+        );
 
-        assertEquals(true, result);
-    }
-
-    /**
-     * This test should check if the blood saturation method in the alert generator
-     * used to determine alerts from incoming patient data are working correctly.
-     * This test simulates a scenario where the blood saturation is critically low.
-     * 
-     * param: none
-     */
-    @Test
-    void testIsBloodSaturationCritical() throws Exception {
-        DataStorage storage = DataStorage.getInstance();
-        AlertGenerator alertGenerator = new AlertGenerator();
-        int patientId = 1;
-
-        ArrayList<PatientRecord> records = new ArrayList<>();
-        records.add(new PatientRecord(patientId, 100.0, "bloodSaturation", 1714376789050L));
-        records.add(new PatientRecord(patientId, 95.0, "bloodSaturation", 1714376789051L));
-        records.add(new PatientRecord(patientId, 85.0, "bloodSaturation", 1714376789053L));
-
-        // Check if the method returns true on this input
-        Method method = AlertGenerator.class.getDeclaredMethod("isBloodSaturationCritical", List.class);
-        method.setAccessible(true);
-        Object result = method.invoke(alertGenerator, records);
-
-        assertEquals(true, result);
-    }
-
-    /**
-     * This test should check if the blood pressure method in the alert generator
-     * used to determine alerts from incoming patient data are working correctly.
-     * This test simulates a scenario where the blood pressure is critical according
-     * to the trend alert.
-     * 
-     * param: none
-     */
-    @Test
-    void testIsBloodPressureCritical() throws Exception {
-        DataStorage storage = DataStorage.getInstance();
-        AlertGenerator alertGenerator = new AlertGenerator();
-        int patientId = 1;
-
-
-        ArrayList<PatientRecord> systolicPressure = new ArrayList<>();
-        systolicPressure.add(new PatientRecord(patientId, 100.0, "systolicPressure", 1714376789050L));
-        systolicPressure.add(new PatientRecord(patientId, 110.0, "systolicPressure", 1714376789051L));
-        systolicPressure.add(new PatientRecord(patientId, 120.0, "systolicPressure", 1714376789052L));
-
-        ArrayList<PatientRecord> diastolicPressure = new ArrayList<>();
-        diastolicPressure.add(new PatientRecord(patientId, 60.0, "diastolicPressure", 1714376789050L));
-        diastolicPressure.add(new PatientRecord(patientId, 71.0, "diastolicPressure", 1714376789051L));
-        diastolicPressure.add(new PatientRecord(patientId, 82.0, "diastolicPressure", 1714376789052L));
-
-        // Check if the method returns true on this input
-        Method method = AlertGenerator.class.getDeclaredMethod("isBloodPressureCritical", List.class, List.class);
-        method.setAccessible(true);
-        Object result = method.invoke(alertGenerator, systolicPressure, diastolicPressure);
-
-        assertEquals(true, result);
-    }
-
-    /**
-     * This test should check if the blood pressure method in the alert generator
-     * used to determine alerts from incoming patient data are working correctly.
-     * This test simulates a scenario where the blood pressure is critical according
-     * to the critical threshold alert.
-     * 
-     * param: none
-     */
-    @Test
-    void testIsBloodPressureCriticalThreshold() throws Exception {
-        DataStorage storage = DataStorage.getInstance();
-        AlertGenerator alertGenerator = new AlertGenerator();
-        int patientId = 1;
-
-        ArrayList<PatientRecord> systolicPressure = new ArrayList<>();
-        systolicPressure.add(new PatientRecord(patientId, 100.0, "systolicPressure", 1714376789050L));
-        systolicPressure.add(new PatientRecord(patientId, 110.0, "systolicPressure", 1714376789051L));
-        systolicPressure.add(new PatientRecord(patientId, 60, "systolicPressure", 1714376789052L));
-
-        ArrayList<PatientRecord> diastolicPressure = new ArrayList<>();
-        diastolicPressure.add(new PatientRecord(patientId, 60.0, "diastolicPressure", 1714376789050L));
-        diastolicPressure.add(new PatientRecord(patientId, 70.0, "diastolicPressure", 1714376789051L));
-        diastolicPressure.add(new PatientRecord(patientId, 70.0, "diastolicPressure", 1714376789052L));
-
-        // Check if the method returns true on this input
-        Method method = AlertGenerator.class.getDeclaredMethod("isBloodPressureCritical", List.class, List.class);
-        method.setAccessible(true);
-        Object result = method.invoke(alertGenerator, systolicPressure, diastolicPressure);
-
-        assertEquals(true, result);
-    }
-
-    /**
-     * This test checks if the isThereHypotensiveHypoxemia method in the alert generator
-     * used to determine alerts from incoming patient data are working correctly.
-     * This test simulates a scenario where the patient has hypotensive hypoxemia.
-     * 
-     * param: none
-     */
-    @Test
-    void testIsThereHypotensiveHypoxemia() throws Exception {
-        DataStorage storage = DataStorage.getInstance();
-        AlertGenerator alertGenerator = new AlertGenerator();
-        int patientId = 1;
-
-        ArrayList<PatientRecord> bloodSaturation = new ArrayList<>();
-        bloodSaturation.add(new PatientRecord(patientId, 100.0, "bloodSaturation", 1714376789050L));
-        bloodSaturation.add(new PatientRecord(patientId, 95.0, "bloodSaturation", 1714376789051L));
-        bloodSaturation.add(new PatientRecord(patientId, 85.0, "bloodSaturation", 1714376789052L));
-
-        ArrayList<PatientRecord> systolicPressure = new ArrayList<>();
-        systolicPressure.add(new PatientRecord(patientId, 100.0, "systolicPressure", 1714376789050L));
-        systolicPressure.add(new PatientRecord(patientId, 110.0, "systolicPressure", 1714376789051L));
-        systolicPressure.add(new PatientRecord(patientId, 80.0, "systolicPressure", 1714376789052L));
-
-        // Check if the method returns true on this input
-        Method method = AlertGenerator.class.getDeclaredMethod("isThereHypotensiveHypoxemia", List.class, List.class);
-        method.setAccessible(true);
-        Object result = method.invoke(alertGenerator, bloodSaturation, systolicPressure);
-        
-        assertEquals(true, result);
-    }
-    /**
-     * A test for the alert generator. This test should check if the alert generator
-     * is able to generate alerts for patients based on their records.
-     * 
-     * param: 
-     */
-    @Test
-    void testECGAlertGenerator() {
-        DataStorage storage = DataStorage.getInstance();
-        int patientId = 1;
-        Patient patient = new Patient(patientId);
-        long time = System.currentTimeMillis();
-
-        storage.addPatientData(patientId, 100.0, "ECGData", (time-1000L));
-        storage.addPatientData(patientId, 200.0, "ECGData", (time-900L));
-        storage.addPatientData(patientId, 100.0, "ECGData", (time-800L));
-        storage.addPatientData(patientId, 200.0, "ECGData", (time-700L));
-        storage.addPatientData(patientId, 100.0, "ECGData", (time-600L));
-        storage.addPatientData(patientId, 600.0, "ECGData", (time-500L));
-
-        // check if storage has the patient record saved correctly
-        List<PatientRecord> records = storage.getRecords(patientId, (time-10000L), time);
-        assertEquals(6, records.size());
-
-        AlertGenerator alertGenerator = new AlertGenerator();
-        // Check if the alert is generated
-        // Create a stream to hold the output
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-
-        PrintStream originalOut = System.out;
-        System.setOut(new PrintStream(outContent));
-
+        alertGenerator = new AlertGenerator(alertStrategies);
+        // Use reflection to inject the mock AlertPublisher
         try {
-            alertGenerator.evaluateData(patient, records);
+            var field = AlertGenerator.class.getDeclaredField("alertPublisher");
+            field.setAccessible(true);
+            field.set(alertGenerator, alertPublisherMock);
         } catch (Exception e) {
-            System.err.println("An error occurred while evaluating patient data: " + e.getMessage());
+            fail("Failed to inject mock AlertPublisher", e);
         }
 
-        // Restore the original System.out
-        System.setOut(originalOut);
+        // Mock subscription behavior
+        StaffDevice device = new SimpleStaffGUI();
+        doNothing().when(alertPublisherMock).subscribe(device);
+    }
 
-        // Assert that System.out.println() was called
-        assertFalse(outContent.toString().isEmpty());
+    @Test
+    public void testEvaluateData_noPatientRecords() throws Exception {
+        Patient patient = mock(Patient.class);
+        List<PatientRecord> patientRecords = new ArrayList<>();
+
+        alertGenerator.evaluateData(patient, patientRecords);
+
+        verifyNoInteractions(bloodPressureAlertStrategyMock);
+        verifyNoInteractions(oxygenSaturationAlertStrategyMock);
+        verifyNoInteractions(hypotensiveHypoxemiaAlertStrategyMock);
+        verifyNoInteractions(ecgDataAlertStrategyMock);
+    }
+
+    @Test
+    public void testEvaluateData_triggerAlert() throws Exception {
+        Patient patient = mock(Patient.class);
+        List<PatientRecord> patientRecords = new ArrayList<>();
+        patientRecords.add(mock(PatientRecord.class));
+
+        Alert alert = mock(Alert.class);
+        when(bloodPressureAlertStrategyMock.checkAlert(patientRecords)).thenReturn(alert);
+
+        alertGenerator.evaluateData(patient, patientRecords);
+
+        verify(bloodPressureAlertStrategyMock).checkAlert(patientRecords);
+        verify(alertPublisherMock).publishAlert(alert);
+    }
+
+    @Test
+    public void testEvaluateData_noAlertsTriggered() throws Exception {
+        Patient patient = mock(Patient.class);
+        List<PatientRecord> patientRecords = new ArrayList<>();
+        patientRecords.add(mock(PatientRecord.class));
+
+        when(bloodPressureAlertStrategyMock.checkAlert(patientRecords)).thenReturn(null);
+        when(oxygenSaturationAlertStrategyMock.checkAlert(patientRecords)).thenReturn(null);
+        when(hypotensiveHypoxemiaAlertStrategyMock.checkAlert(patientRecords)).thenReturn(null);
+        when(ecgDataAlertStrategyMock.checkAlert(patientRecords)).thenReturn(null);
+
+        alertGenerator.evaluateData(patient, patientRecords);
+
+        verify(bloodPressureAlertStrategyMock).checkAlert(patientRecords);
+        verify(oxygenSaturationAlertStrategyMock).checkAlert(patientRecords);
+        verify(hypotensiveHypoxemiaAlertStrategyMock).checkAlert(patientRecords);
+        verify(ecgDataAlertStrategyMock).checkAlert(patientRecords);
+
+        verify(alertPublisherMock, never()).publishAlert(any(Alert.class));
+    }
+
+    @Test
+    public void testTriggerAlert() {
+        Alert alert = mock(Alert.class);
+        when(alert.getPatientId()).thenReturn(12345);
+        when(alert.getTimestamp()).thenReturn(1672576800000L);
+        when(alert.getCondition()).thenReturn("Critical Condition");
+
+        // Using reflection to access and invoke the private triggerAlert method
+        try {
+            var method = AlertGenerator.class.getDeclaredMethod("triggerAlert", Alert.class);
+            method.setAccessible(true);
+            method.invoke(alertGenerator, alert);
+        } catch (Exception e) {
+            fail("Failed to invoke triggerAlert method", e);
+        }
+
+        verify(alertPublisherMock).publishAlert(alert);
     }
 }

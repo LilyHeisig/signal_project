@@ -40,4 +40,7 @@ public class AlertPublisher {
             device.displayAlert(alert);
         }
     }
+    public List<StaffDevice> getSubscribers() {
+        return subscribers;
+    }    
 }

@@ -3,6 +3,7 @@ package com.staff_devices;
 import javax.swing.*;
 import java.awt.*;
 import com.alerts.Alert;
+
 /**
  * The {@code SimpleStaffGUI} class is used to display alerts in a simple GUI.
  */
@@ -43,5 +44,14 @@ public class SimpleStaffGUI implements StaffDevice {
             // Append the new alert text to the text area
             textArea.append(text);
         });
+    }
+
+    // Getter methods for testing purposes
+    public JFrame getFrame() {
+        return frame;
+    }
+
+    public JTextArea getTextArea() {
+        return textArea;
     }
 }
