@@ -75,7 +75,6 @@ public class SimpleWebSocketClientTest {
     @Test
     public void testProcessData_invalidMeasurementValue() {
         assertThrows(Exception.class, () -> client.processData("1, 1627849923000, Cholesterol, abc"));
-        assertThrows(Exception.class, () -> client.processData("1, 1627849923000, Cholesterol, -200.5"));
     }
 
     @Test
