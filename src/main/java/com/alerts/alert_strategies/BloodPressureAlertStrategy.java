@@ -54,8 +54,8 @@ public class BloodPressureAlertStrategy implements AlertStrategy{
      *      Trigger an alert if the systolic blood pressure exceeds 180 mmHg or drops
      *      below 90 mmHg, or if diastolic blood pressure exceeds 120 mmHg or drops
      *      below 60 mmHg.
-     * @param The patient's blood pressure readings
-     * @return
+     * @param filteredRecords the patient's blood pressure readings in a list of list of PatientRecords
+     * @return True if the patient's blood pressure readings are critical, false otherwise
      */
     private boolean isBloodPressureCritical(List<List<PatientRecord>> filteredRecords) {
         // Trend alert

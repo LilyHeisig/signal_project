@@ -43,7 +43,7 @@ public class HypotensiveHypoxemiaAlertStrategyTest {
         Alert alert = alertStrategy.checkAlert(patientRecords);
 
         assertNotNull(alert);
-        assertEquals("Hypotensive Hypoxemia alert triggered for patient number 1, at time 1622505600000L", alert.getMessage());
+        assertEquals("Hypotensive Hypoxemia alert triggered for patient number 1, at time 1622505600000", alert.getMessage());
     }
 
     @Test

@@ -6,11 +6,12 @@ public class BloodOxygenAlert implements Alert{
     private int patientId;
     private long timestamp;
     private String condition = "Blood Oxygen";
-    private String message = "Blood Oxygen Alert triggered for patient number " + patientId + ", at time " + timestamp;
+    private String message;
 
     public BloodOxygenAlert(int patientId, long timestamp){
         this.patientId = patientId;
         this.timestamp = timestamp;
+        message = "Blood Oxygen Alert triggered for patient number " + patientId + ", at time " + timestamp;
     }
 
     @Override

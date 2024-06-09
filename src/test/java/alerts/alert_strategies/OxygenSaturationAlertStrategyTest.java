@@ -38,7 +38,7 @@ public class OxygenSaturationAlertStrategyTest {
         Alert alert = alertStrategy.checkAlert(patientRecords);
 
         assertNotNull(alert);
-        assertEquals("Blood Oxygen Alert triggered for patient number 1, at time 1622505600000L", alert.getMessage());
+        assertEquals("Blood Oxygen Alert triggered for patient number 1, at time 1622505600000", alert.getMessage());
     }
 
     @Test
@@ -53,7 +53,7 @@ public class OxygenSaturationAlertStrategyTest {
         Alert alert = alertStrategy.checkAlert(patientRecords);
 
         assertNotNull(alert);
-        assertEquals("Blood Oxygen Alert triggered for patient number 1, at time 1622505000000L", alert.getMessage());
+        assertEquals("Blood Oxygen Alert triggered for patient number 1, at time 1622505600000", alert.getMessage());
     }
 
     @Test
