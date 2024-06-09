@@ -65,8 +65,10 @@ public class DataManager {
      */
     public void manageData(int patientId, double measurementValue, String recordType, long timestamp) {
         // Add the data to the data storage
+        System.out.println("DataManager: Adding data to the data storage...");
         try {
             dataStorage.addPatientData(patientId, measurementValue, recordType, timestamp);
+            System.out.println("DataManager: Data added to the data storage.");
         } catch (IllegalArgumentException e) {
             System.err.println("DataManager found: An error occurred while adding the data to the data storage. " + e.getMessage());
         } catch (Exception e) {
@@ -96,5 +98,20 @@ public class DataManager {
      */
     public DataStorage getDataStorage() {
         return dataStorage;
+    }
+
+    // For resetting the singleton instance during tests
+    public static void resetInstance() {
+        instance = null;
+    }
+
+    // For injecting mock DataStorage
+    public void setDataStorage(DataStorage dataStorage) {
+        this.dataStorage = dataStorage;
+    }
+
+    // For injecting mock AlertGenerator
+    public void setAlertGenerator(AlertGenerator alertGenerator) {
+        this.alertGenerator = alertGenerator;
     }
 }

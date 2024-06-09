@@ -35,7 +35,7 @@ public class SimpleWebSocketClient extends WebSocketClient implements DataReader
 
         // Process the data received from the WebSocket server, throwing errors
         if (message.isEmpty()) {
-            throw new Exception("Invalid message received from WebSocket server");
+            throw new Exception("Empty message received from WebSocket server");
         }
         message = message.trim();
         String[] parts = message.split("\\s*,\\s*");
@@ -51,6 +51,7 @@ public class SimpleWebSocketClient extends WebSocketClient implements DataReader
             String measurementValueStr = parts[3].replace("%", "");
             measurementValue = Double.parseDouble(measurementValueStr);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             throw new Exception("Invalid measurement value format received from WebSocket server");
         }
         try {
@@ -69,10 +70,6 @@ public class SimpleWebSocketClient extends WebSocketClient implements DataReader
                 && !recordType.equals("Alert") && !recordType.equals("SystolicPressure")
                 && !recordType.equals("DiastolicPressure") && !recordType.equals("ECGData")) {
             throw new Exception("Invalid record type received from WebSocket server: " + recordType);
-        }
-
-        if (measurementValue < 0) {
-            throw new Exception("Invalid measurement value received from WebSocket server");
         }
         if (patientId < 0) {
             throw new Exception("Invalid patient ID received from WebSocket server");
